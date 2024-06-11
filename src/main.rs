@@ -9,7 +9,7 @@ fn hello() -> &'static str {
 
 #[get("/")]
 fn hi_json() -> Value {
-    json!("Hello, world, Hey!")
+    json!("{key: Hello, world, JSON!}")
 }
 
 // #[rocket::main]
