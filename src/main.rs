@@ -6,7 +6,7 @@ mod routes;
 mod api;
 mod models;
 mod services;
-
+mod settings;
 
 // #[launch]
 // async fn rocket() -> _ {
@@ -19,8 +19,7 @@ mod services;
 #[rocket::main]
 async fn main() {
     let _ = rocket::build()
-        .mount("/", routes![hello::hello])
-        .mount("/hi_json", routes![hi_json::hi_json])
+    .mount("/", settings::get_routes())
         .launch()
         .await;
 }
