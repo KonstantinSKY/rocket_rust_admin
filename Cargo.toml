@@ -2,9 +2,13 @@
 name = "rocket_rust_admin"
 version = "0.1.0"
 edition = "2021"
-
+[default]
+address = "127.0.0.1"
+port = 8001
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+[development]
+address = "127.0.0.1"
+port = 8001
 [dependencies]
 rocket = { version = "0.5.1", features = ["secrets", "json"] }
 serde_json = "1.0"
