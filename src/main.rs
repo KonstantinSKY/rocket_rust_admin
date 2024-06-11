@@ -8,9 +8,19 @@ mod models;
 mod services;
 
 
-#[launch]
-fn rocket() -> _ {
-    rocket::build()
+// #[launch]
+// async fn rocket() -> _ {
+//     rocket::build()
+//         .mount("/", routes![hello::hello])
+//         .mount("/hi_json", routes![hi_json::hi_json])
+// }
+
+
+#[rocket::main]
+async fn main() {
+    let _ = rocket::build()
         .mount("/", routes![hello::hello])
         .mount("/hi_json", routes![hi_json::hi_json])
+        .launch()
+        .await;
 }
