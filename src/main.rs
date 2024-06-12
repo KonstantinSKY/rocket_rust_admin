@@ -1,7 +1,7 @@
 
 #[macro_use] extern crate rocket;
-use api::open_api;
 
+mod db;
 mod routes;
 mod api;
 mod models;
@@ -11,10 +11,11 @@ mod settings;
 #[rocket::main]
 async fn main() {
     let _ = rocket::build()
+        .attach(db::stage()) 
         .mount("/", settings::get_routes())
-        .mount("/doc", open_api::get_open_api_routes())
-        .mount("/doc/swagger/", open_api::get_swagger_routes())
-        .mount("/doc/rapidoc/", open_api::get_rapidoc_routes())
+        .mount("/doc", api::get_open_api_routes())
+        .mount("/doc/swagger/", api::get_swagger_routes())
+        .mount("/doc/rapidoc/", api::get_rapidoc_routes())
         .launch()
         .await;
 }
