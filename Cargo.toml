@@ -10,3 +10,4 @@ serde = { version = "1.0"}
 rocket_okapi = { version = "0.8", features = [ "swagger", "rapidoc" ] }
 schemars = "0.8"
 sea-orm = "0.12.15"
+dotenv = "0.15"
