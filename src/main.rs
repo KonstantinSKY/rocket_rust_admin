@@ -12,7 +12,7 @@ async fn main() {
     let sets = settings::Settings::new();                                        // Load environment variables
 
     let _ = rocket::custom(sets.figment)
-        // .attach(db::stage())                               // Attach database stage
+        .attach(db::stage())                               // Attach database stage
         .mount("/", sets.routes)                              // Mount application routes
         .mount("/doc", api::get_open_api_routes())            // Mount OpenAPI routes
         .mount("/doc/swagger/", api::get_swagger_routes())    // Mount Swagger UI routes

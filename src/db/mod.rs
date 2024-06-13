@@ -1,8 +1,17 @@
+use  std::env;
 use sea_orm::{DatabaseConnection, DbErr};
 use rocket::fairing::AdHoc;
 
 pub async fn init_database() -> Result<DatabaseConnection, DbErr> {
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let db = env::var("POSTGRES_DB").expect("POSTGRES_DB must be set");
+    let password = env::var("POSTGRES_PASSWORD").expect("POSTGRES_PASSWORD must be set");
+    let host = env::var("POSTGRES_HOST").expect("POSTGRES_DB must be set");
+    let port  = env::var("POSTGRES_PORT").expect("POSTGRES_DB must be set");
+    let username  = env::var("POSTGRES_USERNAME").expect("POSTGRES_DB must be set");
+
+    let database_url = format!("postgresql://{username}:{password}@{host}:{port}/{db}");
+    println!("Data Base URL: {}", database_url);
+
     sea_orm::Database::connect(&database_url).await
 }
 
