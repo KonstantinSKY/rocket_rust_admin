@@ -1,6 +1,6 @@
 #[macro_use] extern crate rocket;
 
-// mod db;
+mod db;
 mod routes;
 mod api;
 mod models;
