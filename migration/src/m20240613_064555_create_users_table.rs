@@ -1,4 +1,5 @@
 use sea_orm_migration::prelude::*;
+use crate::field_types::id;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -10,13 +11,7 @@ impl MigrationTrait for Migration {
             Table::create()
                 .table(User::Table)
                 .if_not_exists()
-                .col(
-                    ColumnDef::new(User::Id)
-                        .integer()
-                        .not_null()
-                        .auto_increment()
-                        .primary_key(),
-                )
+                .col(&mut id(User::Id) )
                 .col(ColumnDef::new(User::Name).string().not_null().unique_key())
                 .col(ColumnDef::new(User::Email).string().not_null().unique_key())
                 .col(ColumnDef::new(User::FirstName).string())
@@ -36,7 +31,7 @@ impl MigrationTrait for Migration {
 
 #[derive(DeriveIden)]
 enum User {
-    Table,
+    Table, 
     Id,
     Name,
     Email,
