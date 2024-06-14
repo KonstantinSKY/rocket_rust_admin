@@ -1,5 +1,5 @@
 pub use sea_orm_migration::prelude::*;
-
+mod field_types;
 mod m20240613_064555_create_users_table;
 
 pub struct Migrator;
