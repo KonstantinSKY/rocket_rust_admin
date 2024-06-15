@@ -2,9 +2,14 @@ use std::env;
 
 use dotenv::dotenv;
 use rocket::{figment::Figment, Config, Route};
+// use crate::routes::{hello, hi_json, users};
+
+ use crate::auth::settings as auth;
+   
 
 
-use crate::routes::{hello, hi_json};
+
+
 
 pub struct Settings {
     pub secret_key: String,
@@ -31,9 +36,16 @@ impl Settings {
 
 //  === Routes 
 fn get_routes() -> Vec<Route> {
-    routes![
-        hi_json::hi_json,
-        hello::hello,
-        ]
+    let mut routes = Vec::<Route>::new();
+
+    routes.append(&mut settings::get_routes());
+    routes
+
+    // routes![
+    //     auth::settings::get_routes(),
+    //     // hi_json::hi_json,
+    //     // hello::hello,
+    //     // users::get_all_users,
+    //     ]
 }
 
