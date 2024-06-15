@@ -1,5 +1,5 @@
 use sea_orm_migration::prelude::*;
-use crate::field_types::id;
+use crate::field_types::{current_timestamp, email, id, name};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -11,16 +11,18 @@ impl MigrationTrait for Migration {
             Table::create()
                 .table(User::Table)
                 .if_not_exists()
-                .col(&mut id(User::Id) )
-                .col(ColumnDef::new(User::Name).string().not_null().unique_key())
-                .col(ColumnDef::new(User::Email).string().not_null().unique_key())
+                .col(&mut id(User::Id))
+                .col(&mut name(User::Name))
+                .col(&mut email(User::Email))
+                .col(ColumnDef::new(User::Password).string_len(255).not_null())
                 .col(ColumnDef::new(User::FirstName).string())
                 .col(ColumnDef::new(User::LastName).string())
-                .col(ColumnDef::new(User::CreatedAt)
-                    .timestamp()
-                    .not_null()
-                    .default(Expr::current_timestamp()))
-                .to_owned(),
+                .col(ColumnDef::new(User::LastLogin).timestamp().null())
+                .col(ColumnDef::new(User::IsActive).boolean().not_null().default(true))
+                .col(ColumnDef::new(User::IsStaff).boolean().not_null().default(false))
+                .col(ColumnDef::new(User::IsSuperuser).boolean().not_null().default(false))
+                .col(&mut current_timestamp(User::CreatedAt))
+            .to_owned(),
         ).await
     }
 
@@ -30,12 +32,17 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-enum User {
+pub enum User {
     Table, 
     Id,
     Name,
     Email,
+    Password,
     FirstName,
     LastName,
     CreatedAt,
+    LastLogin,
+    IsActive,
+    IsStaff,
+    IsSuperuser,
 }
