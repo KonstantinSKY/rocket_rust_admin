@@ -6,6 +6,12 @@ mod api;
 mod models;
 mod services;
 mod settings;
+mod auth;
+
+
+
+
+
 
 #[rocket::main]
 async fn main() {
