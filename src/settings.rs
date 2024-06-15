@@ -2,7 +2,6 @@ use std::env;
 
 use dotenv::dotenv;
 use rocket::{figment::Figment, Config, Route};
-// use crate::routes::{hello, hi_json, users};
 
 //  === Routes 
 fn get_routes() -> Vec<Route> {
