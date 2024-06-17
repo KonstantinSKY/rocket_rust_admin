@@ -1,19 +1,13 @@
 // auth  app settings
+
 use rocket::Route;
 use super::routes as R;
 
-// pub struct Settings {
-//     pub routes: Vec<Route>,
-// }
+pub const NAME: &str = "auth";
+pub const VERBOSE_NAME: &str = "Authentication";
 
-// impl Settings {
-//     pub fn new () -> Self {
 
-//         Self {
-//             routes: get_routes(),
-//         }
-//     }
-// }
+// Add App Routes here
 //  === Routes 
 pub fn routes() -> Vec<Route> {
     routes![
@@ -24,4 +18,3 @@ pub fn routes() -> Vec<Route> {
         R::groups::add_group,
         ]
 }
-
