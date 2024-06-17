@@ -2,9 +2,6 @@
 
 mod project;
 mod db;
-// mod api;
-// mod models;
-// mod services;
 mod settings;
 mod auth;
 
