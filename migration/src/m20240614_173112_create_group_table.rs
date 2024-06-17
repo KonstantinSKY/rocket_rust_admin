@@ -1,5 +1,5 @@
 use sea_orm_migration::prelude::*;
-use crate::field_types::{current_timestamp, id, name};
+use crate::field_types::{current_timestamp, description, id, name};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -14,6 +14,7 @@ impl MigrationTrait for Migration {
                 .if_not_exists()
                 .col(&mut id(Group::Id))
                 .col(&mut name(Group::Name))
+                .col(&mut description(Group::Description, 256))
                 .col(&mut current_timestamp(Group::CreatedAt))
             .to_owned(),
         ).await
@@ -31,5 +32,6 @@ pub enum Group {
     Table,
     Id,
     Name,
+    Description,
     CreatedAt,
 }
