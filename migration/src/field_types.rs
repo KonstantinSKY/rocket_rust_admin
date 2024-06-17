@@ -34,3 +34,10 @@ pub fn current_timestamp <T: Iden + 'static>(field_enum: T) -> ColumnDef {
         .default(Expr::current_timestamp())
     .clone()
 }
+
+pub fn description <T: Iden + 'static>(field_enum: T, chars_number: u32) -> ColumnDef {
+    ColumnDef::new(field_enum)
+            .string_len(chars_number) // Setting the character limit to 256
+            .null()
+    .clone()
+}
