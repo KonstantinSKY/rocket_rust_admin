@@ -6,27 +6,30 @@ use super::super::models::group::{
     Model as GroupModel,
     ActiveModel as GroupActiveModel,
 };
-
+use super::super::database::group as database;
 
 #[get("/auth/groups")]
 pub async fn get_all_groups(db: &State<DatabaseConnection>) -> Json<Vec<GroupModel>> {
-    Json(Group::find().all(db.inner()).await.unwrap_or_default())
+    Json(database::select_all_groups(db).await)
+    // Json(Group::find().all(db.inner()).await.unwrap_or_default())
 }
 
-
+// Post New group
 #[derive(Deserialize)]
 pub struct NewGroup {
     pub name: String,
+    pub description: String,
 }
 // Handler to add a new group
 #[post("/auth/groups", data = "<new_group>")]
 pub async fn add_group(db: &State<DatabaseConnection>, new_group: Json<NewGroup>) -> Json<GroupModel> {
     let group = GroupActiveModel {
         name: Set(new_group.name.clone()),
+        description: Set(Some(new_group.description.clone())),
         created_at: Set(chrono::Utc::now().naive_utc()),  // Assuming created_at is automatically set
         ..Default::default()
     };
-
+    println!("New group: {:#?}", group);
     let insert_result = Group::insert(group)
         .exec(db.inner())
         .await
@@ -39,7 +42,7 @@ pub async fn add_group(db: &State<DatabaseConnection>, new_group: Json<NewGroup>
     .await
     .expect("Failed to retrieve new group")
     .expect("New group not found");
-
+    println!("New group: {:#?}", new_group);
     Json(new_group) 
     
 }
