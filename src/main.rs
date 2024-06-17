@@ -15,7 +15,7 @@ mod auth;
 
 #[rocket::main]
 async fn main() {
-    let sets = settings::ProjectSettings::new();                                        // Load environment variables
+    let sets = project::ProjectSettings::new();                                        // Load environment variables
 
     let _ = rocket::custom(sets.figment)
         .attach(db::stage())                               // Attach database stage
