@@ -1,3 +1,6 @@
+pub mod select;
+pub mod insert;
+
 use  std::env;
 use sea_orm::{DatabaseConnection, DbErr};
 use rocket::fairing::AdHoc;
