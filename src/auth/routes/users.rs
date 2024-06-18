@@ -1,15 +1,14 @@
-use std::result;
-
 use rocket::serde::json::Json;
 use rocket::{get, State};
 use sea_orm::{entity::*, DatabaseConnection};
 use serde::{Deserialize, Serialize};
 use rocket::http::Status;
 use super::super::models::user;
+use super::super::services::crypto;
 use chrono::{NaiveDateTime, Utc};
 use crate::db::{select, insert, delete};
-use validator::{Validate, ValidationError, ValidationErrors};
-use crate::project::responses;
+use validator::Validate;
+use crate::project::{responses, validators};
 
 #[derive(Serialize)]
 pub struct UserResponse {
@@ -48,16 +47,6 @@ pub async fn get_all_users(db: &State<DatabaseConnection>) -> Result<Json<Vec<Us
     responses::handle_selection_result_by_response_struct(result) 
 }
 
-#[derive(Serialize)]
-struct ValidationErrorResponse {
-    field: String,
-    message: String,
-}
-
-#[derive(Serialize)]
-struct ErrorResponse {
-    errors: Vec<ValidationErrorResponse>,
-}
 
 // Define the NewUser struct
 #[derive(Deserialize, Validate)]
@@ -79,14 +68,14 @@ pub struct NewUser {
 pub async fn add_user(db: &State<DatabaseConnection>, new_user: Json<NewUser>) -> Result<Json<UserResponse>, rocket::http::Status> {
     
     if let Err(validation_errors) = new_user.validate() {
-        let errors = validation_errors_to_response(validation_errors);
+        let errors = validators::validation_errors_to_response(validation_errors);
         return Err(Status::BadRequest);
     }
 
     let active_user = user::ActiveModel {
         name: Set(new_user.name.clone()),
         email: Set(new_user.email.clone()),
-        password: Set(hash_password(new_user.password.clone())), // Assuming you have a function to hash passwords
+        password: Set(crypto::hash_password(new_user.password.clone())), // Assuming you have a function to hash passwords
         first_name: Set(new_user.first_name.clone()),
         last_name: Set(new_user.last_name.clone()),
         created_at: Set(Utc::now().naive_utc()),
@@ -99,16 +88,7 @@ pub async fn add_user(db: &State<DatabaseConnection>, new_user: Json<NewUser>) -
 
     let insert_result = insert::insert::<user::Entity, _>(db, active_user).await;
     responses::handle_insertion_result_by_response_struct(insert_result)
-    // match insert_result {
-    //     Ok(inserted_model) => {
-    //         let user_response = UserResponse::from(inserted_model);
-    //         Ok(Json(user_response))
-    //     },
-    //     Err(error) => {
-    //         println!("Insert error: {:?}", error);
-    //         Err(rocket::http::Status::InternalServerError)
-    //     }
-    // }
+
 }
 
 
@@ -119,24 +99,3 @@ pub async fn delete_user(db: &State<DatabaseConnection>, user_id: i32) -> Result
     responses::handle_deletion_result(result)
 }
 
-// Hash password function
-fn hash_password(password: String) -> String {
-    // Implement your hashing logic here, for example using bcrypt
-    bcrypt::hash(password, bcrypt::DEFAULT_COST).unwrap()
-}
-
-fn validation_errors_to_response(errors: ValidationErrors) -> ErrorResponse {
-    let mut error_responses = Vec::new();
-
-    for (field, errors) in errors.field_errors() {
-        for error in errors {
-            let message = error.message.clone().unwrap_or_else(|| "Invalid value".into());
-            error_responses.push(ValidationErrorResponse {
-                field: field.to_string(),
-                message: message.to_string(),
-            });
-        }
-    }
-
-    ErrorResponse { errors: error_responses }
-}
