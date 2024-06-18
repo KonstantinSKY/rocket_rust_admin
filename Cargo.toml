@@ -14,3 +14,4 @@ sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls"] }
 dotenv = "0.15"
 chrono = { version = "0.4", features = ["serde", "clock"] }
 bcrypt = "0.15"
+validator = { version = "0.18", features = ["derive"] }
