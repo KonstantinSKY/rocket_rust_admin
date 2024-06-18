@@ -1,7 +1,6 @@
 pub mod settings;
 pub mod routes;
 pub mod models;
-pub mod database;
 pub mod services;
 
 use crate::project::AppSettings;
