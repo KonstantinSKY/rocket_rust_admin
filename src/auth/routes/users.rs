@@ -45,21 +45,9 @@ impl From<user::Model> for UserResponse {
 #[get("/auth/users")]
 pub async fn get_all_users(db: &State<DatabaseConnection>) -> Result<Json<Vec<UserResponse>>, rocket::http::Status> {
     let result = select::select_all::<user::Entity>(db).await;
-    
-    match result {
-        Ok(models) => {
-            let user_responses: Vec<UserResponse> = models
-                .into_iter()
-                .map(UserResponse::from)
-                .collect();
-            Ok(Json(user_responses))
-        },
-        Err(err) => {                                        // Log the error or handle it as needed
-            //   error!("Failed to fetch groups: {}", err)          // Log the error internally
-             Err(Status::InternalServerError)                       // Respond with only the HTTP status code
-        }
-    }
+    responses::handle_selection_result_by_response_struct(result) 
 }
+
 #[derive(Serialize)]
 struct ValidationErrorResponse {
     field: String,
@@ -110,17 +98,17 @@ pub async fn add_user(db: &State<DatabaseConnection>, new_user: Json<NewUser>) -
     };
 
     let insert_result = insert::insert::<user::Entity, _>(db, active_user).await;
-
-    match insert_result {
-        Ok(inserted_model) => {
-            let user_response = UserResponse::from(inserted_model);
-            Ok(Json(user_response))
-        },
-        Err(error) => {
-            println!("Insert error: {:?}", error);
-            Err(rocket::http::Status::InternalServerError)
-        }
-    }
+    responses::handle_insertion_result_by_response_struct(insert_result)
+    // match insert_result {
+    //     Ok(inserted_model) => {
+    //         let user_response = UserResponse::from(inserted_model);
+    //         Ok(Json(user_response))
+    //     },
+    //     Err(error) => {
+    //         println!("Insert error: {:?}", error);
+    //         Err(rocket::http::Status::InternalServerError)
+    //     }
+    // }
 }
 
 
@@ -130,8 +118,6 @@ pub async fn delete_user(db: &State<DatabaseConnection>, user_id: i32) -> Result
     let result = user::Entity::delete_by_id(user_id).exec(db.inner()).await;    // Correct
     responses::handle_deletion_result(result)
 }
-
-
 
 // Hash password function
 fn hash_password(password: String) -> String {
