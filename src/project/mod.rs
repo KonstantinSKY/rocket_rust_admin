@@ -1,3 +1,7 @@
+pub mod errors;
+pub mod responses;
+
+
 use std::env;
 use dotenv::dotenv;
 
