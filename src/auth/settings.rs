@@ -14,6 +14,7 @@ pub fn routes() -> Vec<Route> {
         R::hi_json::hi_json,
         R::hello::hello,
         R::users::get_all_users,
+        R::users::add_user,
         R::groups::get_all_groups,
         R::groups::add_group,
         ]
