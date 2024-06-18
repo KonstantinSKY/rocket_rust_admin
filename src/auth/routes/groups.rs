@@ -1,14 +1,10 @@
 use chrono::Utc;
-use rocket::form::name;
 use rocket::http::Status;
 use rocket::serde::{json::Json, Deserialize};
 use rocket::{get, post, State};
 use sea_orm::{entity::*, DatabaseConnection};
 use super::super::models::group;
-use crate::auth::models::group::ActiveModel;
-use crate::db::insert::insert;
 use crate::db::{select, insert};
-// use super::super::models::group::{GroupModel, GroupActiveModel};
 
 #[get("/auth/groups")]
 pub async fn get_all_groups(db: &State<DatabaseConnection>) -> Result<Json<Vec<group::Model>>, rocket::http::Status> {
