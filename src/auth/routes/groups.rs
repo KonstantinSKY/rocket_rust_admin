@@ -8,7 +8,7 @@ use crate::db::{select, insert};
 use crate::project::responses;
 
 #[get("/auth/groups")]
-pub async fn get_all_groups(db: &State<DatabaseConnection>) -> Result<Json<Vec<group::Model>>, rocket::http::Status> {
+pub async fn get_all_groups(db: &State<DatabaseConnection>) -> Result<Json<Vec<group::Model>>, Status> {
     let result = select::select_all::<group::Entity>(db).await;
     responses::handle_selection_result(result)
 }
