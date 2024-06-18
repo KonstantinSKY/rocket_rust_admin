@@ -9,6 +9,7 @@ use super::super::models::user;
 use chrono::{NaiveDateTime, Utc};
 use crate::db::{select, insert, delete};
 use validator::{Validate, ValidationError, ValidationErrors};
+use crate::project::responses;
 
 #[derive(Serialize)]
 pub struct UserResponse {
@@ -125,22 +126,9 @@ pub async fn add_user(db: &State<DatabaseConnection>, new_user: Json<NewUser>) -
 
 // Handler to delete a user
 #[delete("/auth/users/<user_id>")]
-pub async fn delete_user(db: &State<DatabaseConnection>, user_id: i32) -> Result<Status, rocket::http::Status> {
+pub async fn delete_user(db: &State<DatabaseConnection>, user_id: i32) -> Result<Status, Status> {
     let result = user::Entity::delete_by_id(user_id).exec(db.inner()).await;    // Correct
-    
-    match result {
-        Ok(result) => {
-            if result.rows_affected > 0 {
-                Ok(Status::NoContent) // Return 204 No Content if deletion was successful
-            } else {
-                Err(Status::NotFound) // Return 404 Not Found if no rows were affected
-            }
-        }
-        Err(err) => {
-            // println!("Delete error: {:?}", err);
-            Err(Status::InternalServerError) // Return 500 Internal Server Error on failure
-        }
-    }
+    responses::handle_deletion_result(result)
 }
 
 
