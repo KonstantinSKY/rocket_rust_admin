@@ -1,5 +1,7 @@
 pub mod select;
 pub mod insert;
+pub mod update;
+pub mod delete;
 
 use  std::env;
 use sea_orm::{DatabaseConnection, DbErr};
