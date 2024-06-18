@@ -50,3 +50,24 @@ pub async fn add_group(db: &State<DatabaseConnection>, new_group: Json<NewGroup>
         }
     }
 }
+
+// Handler to delete a user
+#[delete("/auth/groups/<group_id>")]
+pub async fn delete_group(db: &State<DatabaseConnection>, group_id: i32) -> Result<Status, Status> {
+    let result = group::Entity::delete_by_id(group_id).exec(db.inner()).await;    // Correct
+    
+    match result {
+        Ok(result) => {
+            if result.rows_affected > 0 {
+                Ok(Status::NoContent) // Return 204 No Content if deletion was successful
+            } else {
+                Err(Status::NotFound) // Return 404 Not Found if no rows were affected
+            }
+        }
+        Err(err) => {
+            // println!("Delete error: {:?}", err);
+            Err(Status::InternalServerError) // Return 500 Internal Server Error on failure
+        }
+    }
+}
+
