@@ -53,7 +53,7 @@ pub async fn add_group(db: &State<DatabaseConnection>, new_group: Json<NewGroup>
 
 // Handler to delete a user
 #[delete("/auth/groups/<group_id>")]
-pub async fn delete_group(db: &State<DatabaseConnection>, group_id: i32) -> Result<Status, Status> {
+pub async fn delete_group(db: &State<DatabaseConnection>, group_id: i32) -> Result <Status, rocket::http::Status> {
     let result = group::Entity::delete_by_id(group_id).exec(db.inner()).await;    // Correct
     
     match result {
