@@ -125,7 +125,7 @@ pub async fn add_user(db: &State<DatabaseConnection>, new_user: Json<NewUser>) -
 
 // Handler to delete a user
 #[delete("/auth/users/<user_id>")]
-pub async fn delete_user(db: &State<DatabaseConnection>, user_id: i32) -> Result<Status, Status> {
+pub async fn delete_user(db: &State<DatabaseConnection>, user_id: i32) -> Result<Status, rocket::http::Status> {
     let result = user::Entity::delete_by_id(user_id).exec(db.inner()).await;    // Correct
     
     match result {
