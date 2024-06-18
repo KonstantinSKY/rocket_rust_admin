@@ -10,15 +10,7 @@ use crate::project::responses;
 #[get("/auth/groups")]
 pub async fn get_all_groups(db: &State<DatabaseConnection>) -> Result<Json<Vec<group::Model>>, rocket::http::Status> {
     let result = select::select_all::<group::Entity>(db).await;
-    
-    match result {
-        Ok(models) => Ok(Json(models)),
-        Err(err) => { // Log the error or handle it as needed
-              // Log the error internally
-            //   error!("Failed to fetch groups: {}", err);
-              Err(Status::InternalServerError) // Respond with only the HTTP status code
-        }
-    }
+    responses::handle_selection_result(result)
 }
 
 // Post New group
@@ -27,10 +19,9 @@ pub struct NewGroup {
     pub name: String,
     pub description: Option<String>,
 }
-
 // Handler to add a new group
 #[post("/auth/groups", data = "<new_group>")]
-pub async fn add_group(db: &State<DatabaseConnection>, new_group: Json<NewGroup>) -> Result<Json<group::Model>, rocket::http::Status> {
+pub async fn add_group(db: &State<DatabaseConnection>, new_group: Json<NewGroup>) -> Result<Json<group::Model>, Status> {
     
     let active_group = group::ActiveModel {
         name: Set(new_group.name.clone()),
@@ -40,16 +31,7 @@ pub async fn add_group(db: &State<DatabaseConnection>, new_group: Json<NewGroup>
     };
 
     let insert_result = insert::insert::<group::Entity, _>(db, active_group).await;
-
-    match insert_result {
-        Ok(inserted_model) => {
-            Ok(Json(inserted_model))
-        },
-        Err(error) => {
-            println!("Insert error: {:?}", error);
-            Err(rocket::http::Status::InternalServerError)
-        }
-    }
+    responses::handle_insertion_result(insert_result)
 }
 
 // Handler to delete a user
@@ -58,18 +40,5 @@ pub async fn delete_group(db: &State<DatabaseConnection>, group_id: i32) -> Resu
     let result = group::Entity::delete_by_id(group_id).exec(db.inner()).await;    // Correct
     responses::handle_deletion_result(result)
 
-    // match result {
-    //     Ok(result) => {
-    //         if result.rows_affected > 0 {
-    //             Ok(Status::NoContent) // Return 204 No Content if deletion was successful
-    //         } else {
-    //             Err(Status::NotFound) // Return 404 Not Found if no rows were affected
-    //         }
-    //     }
-    //     Err(err) => {
-    //         // println!("Delete error: {:?}", err);
-    //         Err(Status::InternalServerError) // Return 500 Internal Server Error on failure
-    //     }
-    // }
 }
 
