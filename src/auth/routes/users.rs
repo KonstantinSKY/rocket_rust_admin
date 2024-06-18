@@ -2,12 +2,11 @@ use rocket::serde::json::Json;
 use rocket::{get, State};
 use sea_orm::{entity::*, DatabaseConnection};
 use serde::{Deserialize, Serialize};
-use super::super::models::user::{Entity as User, Model as UserModel};
 use rocket::http::Status;
 use super::super::models::user;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{NaiveDateTime, Utc};
 use crate::db::{select, insert};
-use bcrypt::{hash, DEFAULT_COST, BcryptError};
+use validator::{Validate, ValidationError, ValidationErrors};
 
 #[derive(Serialize)]
 pub struct UserResponse {
@@ -58,15 +57,29 @@ pub async fn get_all_users(db: &State<DatabaseConnection>) -> Result<Json<Vec<Us
         }
     }
 }
+#[derive(Serialize)]
+struct ValidationErrorResponse {
+    field: String,
+    message: String,
+}
 
+#[derive(Serialize)]
+struct ErrorResponse {
+    errors: Vec<ValidationErrorResponse>,
+}
 
 // Define the NewUser struct
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct NewUser {
+    #[validate(length(min = 1, max = 15))]
     pub name: String,
+    #[validate(email)]
     pub email: String,
+    #[validate(length(min = 6))]
     pub password: String,
+    #[validate(length(min = 1, max = 20))]
     pub first_name: Option<String>,
+    #[validate(length(min = 1, max = 20))]
     pub last_name: Option<String>,
 }
 
@@ -74,6 +87,11 @@ pub struct NewUser {
 #[post("/auth/users", data = "<new_user>")]
 pub async fn add_user(db: &State<DatabaseConnection>, new_user: Json<NewUser>) -> Result<Json<UserResponse>, rocket::http::Status> {
     
+    if let Err(validation_errors) = new_user.validate() {
+        let errors = validation_errors_to_response(validation_errors);
+        return Err(Status::BadRequest);
+    }
+
     let active_user = user::ActiveModel {
         name: Set(new_user.name.clone()),
         email: Set(new_user.email.clone()),
@@ -106,4 +124,20 @@ pub async fn add_user(db: &State<DatabaseConnection>, new_user: Json<NewUser>) -
 fn hash_password(password: String) -> String {
     // Implement your hashing logic here, for example using bcrypt
     bcrypt::hash(password, bcrypt::DEFAULT_COST).unwrap()
+}
+
+fn validation_errors_to_response(errors: ValidationErrors) -> ErrorResponse {
+    let mut error_responses = Vec::new();
+
+    for (field, errors) in errors.field_errors() {
+        for error in errors {
+            let message = error.message.clone().unwrap_or_else(|| "Invalid value".into());
+            error_responses.push(ValidationErrorResponse {
+                field: field.to_string(),
+                message: message.to_string(),
+            });
+        }
+    }
+
+    ErrorResponse { errors: error_responses }
 }
