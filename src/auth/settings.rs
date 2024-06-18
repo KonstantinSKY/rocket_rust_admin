@@ -15,7 +15,9 @@ pub fn routes() -> Vec<Route> {
         R::hello::hello,
         R::users::get_all_users,
         R::users::add_user,
+        R::users::delete_user,
         R::groups::get_all_groups,
         R::groups::add_group,
+        R::groups::delete_group,
         ]
 }
