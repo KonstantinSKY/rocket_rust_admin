@@ -19,5 +19,7 @@ pub fn routes() -> Vec<Route> {
         R::groups::get_all_groups,
         R::groups::add_group,
         R::groups::delete_group,
+        R::user_group::get_all,
+        R::user_group::add_one,
         ]
 }
